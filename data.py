@@ -4,12 +4,18 @@ import scipy.sparse as sp
 import torch_geometric.datasets as geo_data
 
 DATA_ROOT = 'data'
+if not os.path.isdir(DATA_ROOT):
+    os.mkdir(DATA_ROOT)
 
-def load_data(data_name='cora', normalize_feature=True, cuda=False):
+def load_data(data_name='cora', normalize_feature=True, missing_rate=0, cuda=False):
     # can use other dataset, some doesn't have mask
     data = geo_data.Planetoid(os.path.join(DATA_ROOT, data_name), data_name).data 
-    n = len(data.x)
+    # original split
+    data.train_mask = data.train_mask.type(torch.bool)
+    data.val_mask = data.val_mask.type(torch.bool)
+    data.test_mask = data.test_mask.type(torch.bool)     
     # get adjacency matrix
+    n = len(data.x)
     adj = sp.csr_matrix((np.ones(data.edge_index.shape[1]), data.edge_index), shape=(n,n))
     adj = adj + adj.T - adj.multiply(adj.T) + sp.eye(adj.shape[0])
     adj = normalize_adj(adj)
@@ -17,15 +23,29 @@ def load_data(data_name='cora', normalize_feature=True, cuda=False):
     # normalize feature
     if normalize_feature:
         data.x = row_l1_normalize(data.x)
-
-    data.train_mask = data.train_mask.type(torch.bool)
-    data.val_mask = data.val_mask.type(torch.bool)
-    data.test_mask = data.test_mask.type(torch.bool)
+    
+    # generate missing feature setting 
+    indices_dir = os.path.join(DATA_ROOT, data_name, 'indices')
+    if not os.path.isdir(indices_dir): 
+        os.mkdir(indices_dir)
+    missing_indices_file = os.path.join(indices_dir, "indices_missing_rate={}.npy".format(missing_rate))
+    if not os.path.exists(missing_indices_file):
+        erasing_pool = torch.arange(n)[~data.train_mask] # keep training set always full feature
+        size = int(len(erasing_pool) * (missing_rate/100))
+        idx_erased = np.random.choice(erasing_pool, size=size, replace=False)
+        np.save(missing_indices_file, idx_erased)
+    else:
+        idx_erased = np.load(missing_indices_file)
+    # erasing feature for random missing 
+    if missing_rate > 0:
+        data.x[idx_erased] = 0
+    
     if cuda:
         data.x = data.x.cuda()
         data.y = data.y.cuda()
         data.adj = data.adj.cuda()
-    return data
+    
+    return data   
 
 def normalize_adj(adj):
     """Symmetrically normalize adjacency matrix."""

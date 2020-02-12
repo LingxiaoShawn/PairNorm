@@ -25,11 +25,11 @@ parser.add_argument('--nlayer', type=int, default=2, help='Number of layers, wor
 parser.add_argument('--residual', type=int, default=0, help='Residual connection')
 # for PairNorm
 # - PairNorm mode, use PN-SI or PN-SCS for GCN and GAT. With more than 5 layers get lots improvement.
-parser.add_argument('--norm_mode', type=str, default='None', help='{None, PN, PN-SI, PN-SCS}')
+parser.add_argument('--norm_mode', type=str, default='None', help='Mode for PairNorm, {None, PN, PN-SI, PN-SCS}')
 parser.add_argument('--norm_scale', type=float, default=1.0, help='Row-normalization scale')
 # for data
 parser.add_argument('--no_fea_norm', action='store_false', default=True, help='not normalize feature' )
-
+parser.add_argument('--missing_rate', type=int, default=0, help='missing rate, from 0 to 100' )
 args = parser.parse_args()
 
 # logger
@@ -37,7 +37,7 @@ args = parser.parse_args()
 logging.basicConfig(format='%(message)s', level=getattr(logging, args.log.upper())) 
 
 # load data
-data = load_data(args.data, normalize_feature=args.no_fea_norm, cuda=True)
+data = load_data(args.data, normalize_feature=args.no_fea_norm, missing_rate=args.missing_rate, cuda=True)
 nfeat = data.x.size(1)
 nclass = int(data.y.max()) + 1
 net = getattr(models, args.model)(nfeat, args.hid, nclass, 
