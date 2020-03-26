@@ -1,4 +1,3 @@
-
 def train(net, optimizer, criterion, data):
     net.train()
     optimizer.zero_grad()
@@ -28,4 +27,3 @@ def accuracy(output, labels):
     correct = preds.eq(labels).double()
     correct = correct.sum()
     return correct / len(labels)
-# meter for saving histories 

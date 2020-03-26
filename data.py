@@ -13,12 +13,14 @@ def load_data(data_name='cora', normalize_feature=True, missing_rate=0, cuda=Fal
     # original split
     data.train_mask = data.train_mask.type(torch.bool)
     data.val_mask = data.val_mask.type(torch.bool)
-    data.test_mask = data.test_mask.type(torch.bool)     
+    # data.test_mask = data.test_mask.type(torch.bool)    
+    # expand test_mask to all rest nodes 
+    data.test_mask = ~(data.train_mask + data.val_mask)
     # get adjacency matrix
     n = len(data.x)
     adj = sp.csr_matrix((np.ones(data.edge_index.shape[1]), data.edge_index), shape=(n,n))
-    adj = adj + adj.T - adj.multiply(adj.T) + sp.eye(adj.shape[0])
-    adj = normalize_adj(adj)
+    adj = adj + adj.T.multiply(adj.T > adj) - adj.multiply(adj.T > adj) + sp.eye(adj.shape[0])
+    adj = normalize_adj_row(adj) # symmetric normalization works bad, but why? Test more. 
     data.adj = to_torch_sparse(adj)
     # normalize feature
     if normalize_feature:

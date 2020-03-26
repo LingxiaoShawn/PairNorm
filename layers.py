@@ -83,7 +83,7 @@ class GraphAttConvOneHead(nn.Module):
         return output
     
 class PairNorm(nn.Module):
-    def __init__(self, mode='SI', scale=1):
+    def __init__(self, mode='PN', scale=1):
         """
             mode:
               'None' : No normalization 

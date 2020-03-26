@@ -19,7 +19,6 @@ parser.add_argument('--dropout', type=float, default=0.6, help='Dropout rate.')
 parser.add_argument('--epochs', type=int, default=500, help='Number of epochs to train.')
 parser.add_argument('--log', type=str, default='debug', help='{info, debug}')
 parser.add_argument('--wd', type=float, default=5e-4, help='Weight decay (L2 loss on parameters).')
-
 # for deep model
 parser.add_argument('--nlayer', type=int, default=2, help='Number of layers, works for Deep model.')
 parser.add_argument('--residual', type=int, default=0, help='Residual connection')
@@ -30,6 +29,7 @@ parser.add_argument('--norm_scale', type=float, default=1.0, help='Row-normaliza
 # for data
 parser.add_argument('--no_fea_norm', action='store_false', default=True, help='not normalize feature' )
 parser.add_argument('--missing_rate', type=int, default=0, help='missing rate, from 0 to 100' )
+
 args = parser.parse_args()
 
 # logger
