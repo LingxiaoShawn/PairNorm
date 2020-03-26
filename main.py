@@ -16,7 +16,7 @@ parser.add_argument('--hid', type=int, default=64, help='Number of hidden units.
 parser.add_argument('--lr', type=float, default=0.005, help='Initial learning rate.')
 parser.add_argument('--nhead', type=int, default=1, help='Number of head attentions.')
 parser.add_argument('--dropout', type=float, default=0.6, help='Dropout rate.')
-parser.add_argument('--epochs', type=int, default=500, help='Number of epochs to train.')
+parser.add_argument('--epochs', type=int, default=1500, help='Number of epochs to train.')
 parser.add_argument('--log', type=str, default='debug', help='{info, debug}')
 parser.add_argument('--wd', type=float, default=5e-4, help='Weight decay (L2 loss on parameters).')
 # for deep model
